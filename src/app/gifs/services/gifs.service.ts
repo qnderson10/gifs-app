@@ -13,6 +13,11 @@ export class GifsService {
   private _tagsHistory: string[] = [];
   private api_key: string = '8l3So28ckxP7MvjTWIEfwUNl6FeRSmTh';
   private serviceUrl: string = 'https://api.giphy.com/v1/gifs';
+
+  constructor(private http: HttpClient) {
+    this.loadLocalStorage();
+  }
+
   get tagsHistory(){
     return [...this._tagsHistory];
   }
@@ -44,6 +49,24 @@ export class GifsService {
     this._tagsHistory.unshift(tag);
 
     this._tagsHistory = this._tagsHistory.splice(0,10);
+    this.saveLocalStorage();
   }
-  constructor(private http: HttpClient) { }
+
+  private saveLocalStorage():void {
+    localStorage.setItem('history', JSON.stringify(this._tagsHistory));
+  }
+
+  private loadLocalStorage():void {
+    if (!localStorage.getItem('history')) {
+      this.searchTag('Bienvenido');
+      return;
+    }
+    this._tagsHistory = JSON.parse(localStorage.getItem('history')!);
+
+    if (this._tagsHistory.length === 0) {
+      return;
+    }
+    this.searchTag(this._tagsHistory[0]);
+  }
+
 }
